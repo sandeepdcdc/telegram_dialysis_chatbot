@@ -549,7 +549,162 @@
 # if __name__ == "__main__":
 #     main()
 
-# ------ API Secured ----------
+# ------ API Secured 5 May----------
+# from telegram import Update, ReplyKeyboardMarkup
+# from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+# from dotenv import load_dotenv
+# import os
+# import requests
+
+# load_dotenv()
+
+# TOKEN = os.getenv("BOT_TOKEN")
+# # BASE_URL = "http://127.0.0.1:5000"
+# BASE_URL = "https://telegram-dialysis-chatbot.onrender.com"
+# API_KEY = os.getenv("API_KEY")
+
+# HEADERS = {"x-api-key": API_KEY}
+
+# ALLOWED_USERS = {6244556529}
+
+# # ================= MENU =================
+# def start(update: Update, context: CallbackContext):
+#     keyboard = [
+#         ["1️⃣ Total Billing Count", "2️⃣ Last Dialysis (by patient id)"],
+#         ["3️⃣ Top 5 Branches (by billing count)", "4️⃣ Last 30 days Billing Count"],
+#         ["5️⃣ Contact Support"]
+#     ]
+
+#     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
+#     update.message.reply_text(
+#         "👋 Welcome to DCDC - AI Powered Dialysis Assistant Bot\n\n"
+#         "Choose an option:\n\n"
+#         "1️⃣ Total Billing Count\n"
+#         "2️⃣ Last Dialysis (by Patient id)\n"
+#         "3️⃣ Top 5 Branches (by Billing Count)\n"
+#         "4️⃣ Last 30 Days Billing Count\n"
+#         "5️⃣ Contact Support\n\n"
+#         "👉 Type 1–5 OR use buttons",
+#         reply_markup=reply_markup
+#     )
+
+#     context.user_data.clear()
+
+# # ================= POST ACTION =================
+# def show_post_action(update):
+#     keyboard = [["🔄 Menu", "❌ Exit"]]
+#     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
+#     update.message.reply_text(
+#         "🔁 What next?\n\n"
+#         "👉 Type 'menu' to go back\n"
+#         "👉 Type 'exit' to quit",
+#         reply_markup=reply_markup
+#     )
+
+# # ================= HANDLER =================
+# def handle_message(update: Update, context: CallbackContext):
+
+#     print("User:", update.effective_user.id, "| Msg:", update.message.text)
+
+#     if update.effective_user.id not in ALLOWED_USERS:
+#         update.message.reply_text("❌ Unauthorized access")
+#         return
+
+#     text = update.message.text.strip().lower()
+
+#     # NEXT ACTION
+#     if context.user_data.get('awaiting_next_action'):
+#         if text in ["menu", "🔄 menu"]:
+#             start(update, context)
+#             return
+#         elif text in ["exit", "❌ exit"]:
+#             update.message.reply_text("👋 Goodbye")
+#             context.user_data.clear()
+#             return
+#         else:
+#             update.message.reply_text("❌ Type 'menu' or 'exit'")
+#             return
+
+#     # PATIENT ID
+#     if context.user_data.get('awaiting_patient_id'):
+#         patient_id = text
+
+#         try:
+#             res = requests.get(f"{BASE_URL}/last-dialysis/{patient_id}", headers=HEADERS)
+#             result = res.json().get("last_dialysis")
+
+#             update.message.reply_text(f"💉 Last Dialysis: {result}")
+
+#         except:
+#             update.message.reply_text("⚠️ Error fetching data")
+
+#         context.user_data['awaiting_patient_id'] = False
+#         show_post_action(update)
+#         context.user_data['awaiting_next_action'] = True
+#         return
+
+#     # GREETING
+#     if text in ["hi", "hello", "start"]:
+#         start(update, context)
+#         return
+
+#     # OPTIONS
+#     try:
+#         if text.startswith("1"):
+#             res = requests.get(f"{BASE_URL}/total-patients", headers=HEADERS)
+#             update.message.reply_text(f"👥 Total Patients: {res.json()['total_patients']}")
+
+#         elif text.startswith("2"):
+#             update.message.reply_text("🆔 Enter Patient ID:")
+#             context.user_data['awaiting_patient_id'] = True
+#             return
+
+#         elif text.startswith("3"):
+#             res = requests.get(f"{BASE_URL}/top-branches", headers=HEADERS)
+#             data = res.json()["top_branches"]
+
+#             msg = "🏥 Top Branches:\n"
+#             for b in data:
+#                 msg += f"- {b['branch_name']} ({b['patient_count']})\n"
+
+#             update.message.reply_text(msg)
+
+#         elif text.startswith("4"):
+#             res = requests.get(f"{BASE_URL}/billing", headers=HEADERS)
+#             update.message.reply_text(f"💰 Billing: {res.json()['billing']}")
+
+#         elif text.startswith("5"):
+#             update.message.reply_text("📞 Contact: +91-XXXXXXXX")
+
+#         else:
+#             update.message.reply_text("❌ Invalid input")
+#             return
+
+#     except:
+#         update.message.reply_text("⚠️ API error")
+
+#     show_post_action(update)
+#     context.user_data['awaiting_next_action'] = True
+
+# # ================= MAIN =================
+# def main():
+#     print("🚀 Bot started...")
+
+#     updater = Updater(TOKEN, use_context=True)
+#     dp = updater.dispatcher
+
+#     dp.add_handler(CommandHandler("start", start))
+#     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+
+#     updater.start_polling()
+#     updater.idle()
+
+# if __name__ == "__main__":
+#     main()
+
+# ----------- Sub Menu Updded ---------------------
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from dotenv import load_dotenv
@@ -559,7 +714,6 @@ import requests
 load_dotenv()
 
 TOKEN = os.getenv("BOT_TOKEN")
-# BASE_URL = "http://127.0.0.1:5000"
 BASE_URL = "https://telegram-dialysis-chatbot.onrender.com"
 API_KEY = os.getenv("API_KEY")
 
@@ -567,137 +721,171 @@ HEADERS = {"x-api-key": API_KEY}
 
 ALLOWED_USERS = {6244556529}
 
-# ================= MENU =================
-def start(update: Update, context: CallbackContext):
+# ================= MAIN MENU =================
+def show_main_menu(update, context):
     keyboard = [
-        ["1️⃣ Total Billing Count", "2️⃣ Last Dialysis (by patient id)"],
-        ["3️⃣ Top 5 Branches (by billing count)", "4️⃣ Last 30 days Billing Count"],
-        ["5️⃣ Contact Support"]
+        ["1️⃣ Total Billing", "2️⃣ Last Dialysis"],
+        ["3️⃣ Top Branches", "4️⃣ Last 30 Days Billing"],
+        ["5️⃣ Support"]
     ]
-
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-
     update.message.reply_text(
-        "👋 Welcome to DCDC - AI Powered Dialysis Assistant Bot\n\n"
-        "Choose an option:\n\n"
-        "1️⃣ Total Billing Count\n"
-        "2️⃣ Last Dialysis (by Patient id)\n"
-        "3️⃣ Top 5 Branches (by Billing Count)\n"
-        "4️⃣ Last 30 Days Billing Count\n"
-        "5️⃣ Contact Support\n\n"
-        "👉 Type 1–5 OR use buttons",
-        reply_markup=reply_markup
+        "📊 Main Menu:\nChoose an option:",
+        reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     )
-
     context.user_data.clear()
+    context.user_data['menu'] = "main"
 
-# ================= POST ACTION =================
-def show_post_action(update):
-    keyboard = [["🔄 Menu", "❌ Exit"]]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+# ================= SUB MENUS =================
+def submenu_1(update, context):
+    keyboard = [["1.1 Enter Branch ID", "1.2 Total Billing"], ["🔙 Back"]]
+    update.message.reply_text("Total Billing Options:",
+                              reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
+    context.user_data['menu'] = "1"
 
-    update.message.reply_text(
-        "🔁 What next?\n\n"
-        "👉 Type 'menu' to go back\n"
-        "👉 Type 'exit' to quit",
-        reply_markup=reply_markup
-    )
+def submenu_3(update, context):
+    keyboard = [["3.1 Last 30 Days", "3.2 Total Billing"], ["🔙 Back"]]
+    update.message.reply_text("Top Branch Options:",
+                              reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
+    context.user_data['menu'] = "3"
+
+def submenu_4(update, context):
+    keyboard = [["4.1 Enter Branch ID", "4.2 Total Billing"], ["🔙 Back"]]
+    update.message.reply_text("Last 30 Days Billing Options:",
+                              reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
+    context.user_data['menu'] = "4"
 
 # ================= HANDLER =================
 def handle_message(update: Update, context: CallbackContext):
 
-    print("User:", update.effective_user.id, "| Msg:", update.message.text)
-
     if update.effective_user.id not in ALLOWED_USERS:
-        update.message.reply_text("❌ Unauthorized access")
+        update.message.reply_text("❌ Unauthorized")
         return
 
     text = update.message.text.strip().lower()
+    menu = context.user_data.get("menu", "main")
 
-    # NEXT ACTION
-    if context.user_data.get('awaiting_next_action'):
-        if text in ["menu", "🔄 menu"]:
-            start(update, context)
-            return
-        elif text in ["exit", "❌ exit"]:
-            update.message.reply_text("👋 Goodbye")
-            context.user_data.clear()
-            return
-        else:
-            update.message.reply_text("❌ Type 'menu' or 'exit'")
-            return
-
-    # PATIENT ID
-    if context.user_data.get('awaiting_patient_id'):
-        patient_id = text
-
-        try:
-            res = requests.get(f"{BASE_URL}/last-dialysis/{patient_id}", headers=HEADERS)
-            result = res.json().get("last_dialysis")
-
-            update.message.reply_text(f"💉 Last Dialysis: {result}")
-
-        except:
-            update.message.reply_text("⚠️ Error fetching data")
-
-        context.user_data['awaiting_patient_id'] = False
-        show_post_action(update)
-        context.user_data['awaiting_next_action'] = True
+    # BACK
+    if "back" in text:
+        show_main_menu(update, context)
         return
 
     # GREETING
     if text in ["hi", "hello", "start"]:
-        start(update, context)
+        show_main_menu(update, context)
         return
 
-    # OPTIONS
-    try:
+    # ================= INPUT HANDLING =================
+    if context.user_data.get("awaiting_branch_id"):
+        branch_id = text
+        action = context.user_data['awaiting_branch_id']
+
+        try:
+            if action == "billing_total":
+                res = requests.get(f"{BASE_URL}/billing/{branch_id}", headers=HEADERS)
+
+            elif action == "billing_30":
+                res = requests.get(f"{BASE_URL}/billing-30days/{branch_id}", headers=HEADERS)
+
+            result = res.json()["billing"]
+            update.message.reply_text(f"💰 Billing Count: {result}")
+
+        except:
+            update.message.reply_text("⚠️ Error fetching data")
+
+        context.user_data['awaiting_branch_id'] = None
+        show_main_menu(update, context)
+        return
+
+    if context.user_data.get("awaiting_patient_id"):
+        try:
+            res = requests.get(f"{BASE_URL}/last-dialysis/{text}", headers=HEADERS)
+            update.message.reply_text(f"💉 Last Dialysis: {res.json()['last_dialysis']}")
+        except:
+            update.message.reply_text("⚠️ Error")
+
+        context.user_data['awaiting_patient_id'] = False
+        show_main_menu(update, context)
+        return
+
+    # ================= MAIN MENU =================
+    if menu == "main":
+
         if text.startswith("1"):
-            res = requests.get(f"{BASE_URL}/total-patients", headers=HEADERS)
-            update.message.reply_text(f"👥 Total Patients: {res.json()['total_patients']}")
+            submenu_1(update, context)
 
         elif text.startswith("2"):
-            update.message.reply_text("🆔 Enter Patient ID:")
+            update.message.reply_text("Enter Patient ID:")
             context.user_data['awaiting_patient_id'] = True
-            return
 
         elif text.startswith("3"):
-            res = requests.get(f"{BASE_URL}/top-branches", headers=HEADERS)
-            data = res.json()["top_branches"]
-
-            msg = "🏥 Top Branches:\n"
-            for b in data:
-                msg += f"- {b['branch_name']} ({b['patient_count']})\n"
-
-            update.message.reply_text(msg)
+            submenu_3(update, context)
 
         elif text.startswith("4"):
-            res = requests.get(f"{BASE_URL}/billing", headers=HEADERS)
-            update.message.reply_text(f"💰 Billing: {res.json()['billing']}")
+            submenu_4(update, context)
 
         elif text.startswith("5"):
-            update.message.reply_text("📞 Contact: +91-XXXXXXXX")
+            update.message.reply_text("📞 Support: +91-XXXXXXXX")
 
         else:
-            update.message.reply_text("❌ Invalid input")
+            update.message.reply_text("❌ Invalid option")
+
+    # ================= MENU 1 =================
+    elif menu == "1":
+
+        if text.startswith("1.1"):
+            update.message.reply_text("Enter Branch ID:")
+            context.user_data['awaiting_branch_id'] = "billing_total"
+
+        elif text.startswith("1.2"):
+            res = requests.get(f"{BASE_URL}/billing-total", headers=HEADERS)
+            update.message.reply_text(f"💰 Total Billing: {res.json()['billing']}")
+
+        else:
+            update.message.reply_text("❌ Invalid option")
+
+    # ================= MENU 3 =================
+    elif menu == "3":
+
+        if text.startswith("3.1"):
+            res = requests.get(f"{BASE_URL}/top-branches-30days", headers=HEADERS)
+
+        elif text.startswith("3.2"):
+            res = requests.get(f"{BASE_URL}/top-branches", headers=HEADERS)
+
+        else:
+            update.message.reply_text("❌ Invalid option")
             return
 
-    except:
-        update.message.reply_text("⚠️ API error")
+        data = res.json()["top_branches"]
+        msg = "🏥 Top Branches:\n"
+        for b in data:
+            msg += f"- {b['branch_name']} ({b['patient_count']})\n"
 
-    show_post_action(update)
-    context.user_data['awaiting_next_action'] = True
+        update.message.reply_text(msg)
+
+    # ================= MENU 4 =================
+    elif menu == "4":
+
+        if text.startswith("4.1"):
+            update.message.reply_text("Enter Branch ID:")
+            context.user_data['awaiting_branch_id'] = "billing_30"
+
+        elif text.startswith("4.2"):
+            res = requests.get(f"{BASE_URL}/billing-30days", headers=HEADERS)
+            update.message.reply_text(f"💰 Last 30 Days Billing: {res.json()['billing']}")
+
+        else:
+            update.message.reply_text("❌ Invalid option")
 
 # ================= MAIN =================
 def main():
-    print("🚀 Bot started...")
-
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
 
-    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("start", show_main_menu))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
 
+    print("🚀 Bot running...")
     updater.start_polling()
     updater.idle()
 
