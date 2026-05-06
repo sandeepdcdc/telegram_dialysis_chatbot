@@ -710,6 +710,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 from dotenv import load_dotenv
 import os
 import requests
+from telegram import ReplyKeyboardMarkup
 
 load_dotenv()
 
@@ -724,14 +725,33 @@ ALLOWED_USERS = {6244556529}
 # ================= MAIN MENU =================
 def show_main_menu(update, context):
     keyboard = [
-        ["1️⃣ Total Billing", "2️⃣ Last Dialysis"],
-        ["3️⃣ Top Branches", "4️⃣ Last 30 Days Billing"],
+        ["1️⃣ Total Billing", "2️⃣ Last Dialysis by patient"],
+        ["3️⃣ Top 5 Branches", "4️⃣ Last 30 Days Billing"],
         ["5️⃣ Support"]
     ]
-    update.message.reply_text(
-        "📊 Main Menu:\nChoose an option:",
-        reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    # update.message.reply_text(
+    #     "📊 Main Menu:\nChoose an option:",
+    #     reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    # )
+    
+    reply_markup = ReplyKeyboardMarkup(
+        keyboard,
+        resize_keyboard=True,
+        one_time_keyboard=False   # 👈 IMPORTANT
     )
+
+    update.message.reply_text(
+        "📊 Choose an Option:\n\n"
+        "1️⃣ Total Billing\n"
+        "2️⃣ Last Dialysis (by patient id)\n"
+        "3️⃣ Top 5 Branches\n"
+        "4️⃣ Last 30 Days Billing\n"
+        "5️⃣ Support\n\n"
+        "👉 Use buttons below or type option number",
+        reply_markup=reply_markup
+    )
+
+
     context.user_data.clear()
     context.user_data['menu'] = "main"
 
