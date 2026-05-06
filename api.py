@@ -228,14 +228,24 @@ DB_CONFIG = {
     "host": os.getenv("DB_HOST"),
     "user": os.getenv("DB_USER"),
     "password": os.getenv("DB_PASSWORD"),
-    "database": os.getenv("DB_NAME")
+    "database": os.getenv("DB_NAME"),
+    "cursorclass": pymysql.cursors.Cursor,
+    "connect_timeout": 5
 }
 
+# ================= DB CONNECTION =================
 def get_connection():
     return pymysql.connect(**DB_CONFIG)
 
+# ================= AUTH =================
 def check_api_key():
     return request.headers.get("x-api-key") == API_KEY
+
+# ================= HEALTH CHECK =================
+@app.route("/")
+def health():
+    return jsonify({"status": "API running"})
+
 
 # ================= BILLING TOTAL =================
 @app.route('/billing-total')
@@ -243,14 +253,19 @@ def billing_total():
     if not check_api_key():
         return jsonify({"error": "Unauthorized"}), 401
 
-    conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    cursor.execute("SELECT COUNT(patient_id) FROM dc_patient_billing")
-    total = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(patient_id) FROM dc_patient_billing")
+        total = cursor.fetchone()[0] or 0
 
-    conn.close()
-    return jsonify({"billing": total})
+        conn.close()
+        return jsonify({"billing": total})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ================= BILLING BY BRANCH =================
 @app.route('/billing/<branch_id>')
@@ -258,19 +273,24 @@ def billing_branch(branch_id):
     if not check_api_key():
         return jsonify({"error": "Unauthorized"}), 401
 
-    conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT COUNT(patient_id)
-        FROM dc_patient_billing
-        WHERE branch_id = %s
-    """, (branch_id,))
+        cursor.execute("""
+            SELECT COUNT(patient_id)
+            FROM dc_patient_billing
+            WHERE branch_id = %s
+        """, (branch_id,))
 
-    total = cursor.fetchone()[0]
-    conn.close()
+        total = cursor.fetchone()[0] or 0
+        conn.close()
 
-    return jsonify({"billing": total})
+        return jsonify({"billing": total})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ================= BILLING LAST 30 DAYS =================
 @app.route('/billing-30days')
@@ -278,19 +298,24 @@ def billing_30():
     if not check_api_key():
         return jsonify({"error": "Unauthorized"}), 401
 
-    conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT COUNT(patient_id)
-        FROM dc_patient_billing
-        WHERE billing_date >= CURDATE() - INTERVAL 30 DAY
-    """)
+        cursor.execute("""
+            SELECT COUNT(patient_id)
+            FROM dc_patient_billing
+            WHERE billing_date >= CURDATE() - INTERVAL 30 DAY
+        """)
 
-    total = cursor.fetchone()[0]
-    conn.close()
+        total = cursor.fetchone()[0] or 0
+        conn.close()
 
-    return jsonify({"billing": total})
+        return jsonify({"billing": total})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ================= BILLING LAST 30 DAYS BY BRANCH =================
 @app.route('/billing-30days/<branch_id>')
@@ -298,20 +323,25 @@ def billing_30_branch(branch_id):
     if not check_api_key():
         return jsonify({"error": "Unauthorized"}), 401
 
-    conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT COUNT(patient_id)
-        FROM dc_patient_billing
-        WHERE branch_id = %s
-        AND billing_date >= CURDATE() - INTERVAL 30 DAY
-    """, (branch_id,))
+        cursor.execute("""
+            SELECT COUNT(patient_id)
+            FROM dc_patient_billing
+            WHERE branch_id = %s
+            AND billing_date >= CURDATE() - INTERVAL 30 DAY
+        """, (branch_id,))
 
-    total = cursor.fetchone()[0]
-    conn.close()
+        total = cursor.fetchone()[0] or 0
+        conn.close()
 
-    return jsonify({"billing": total})
+        return jsonify({"billing": total})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ================= TOP BRANCHES =================
 @app.route('/top-branches')
@@ -319,23 +349,28 @@ def top_branches():
     if not check_api_key():
         return jsonify({"error": "Unauthorized"}), 401
 
-    conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT branch_name, COUNT(patient_id)
-        FROM dc_patient_billing
-        GROUP BY branch_name
-        ORDER BY COUNT(patient_id) DESC
-        LIMIT 5
-    """)
+        cursor.execute("""
+            SELECT branch_name, COUNT(patient_id)
+            FROM dc_patient_billing
+            GROUP BY branch_name
+            ORDER BY COUNT(patient_id) DESC
+            LIMIT 5
+        """)
 
-    result = cursor.fetchall()
-    conn.close()
+        result = cursor.fetchall()
+        conn.close()
 
-    return jsonify({
-        "top_branches": [{"branch_name": r[0], "patient_count": r[1]} for r in result]
-    })
+        data = [{"branch_name": r[0], "patient_count": r[1]} for r in result]
+
+        return jsonify({"top_branches": data})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ================= TOP BRANCHES LAST 30 DAYS =================
 @app.route('/top-branches-30days')
@@ -343,24 +378,29 @@ def top_branches_30():
     if not check_api_key():
         return jsonify({"error": "Unauthorized"}), 401
 
-    conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT branch_name, COUNT(patient_id)
-        FROM dc_patient_billing
-        WHERE billing_date >= CURDATE() - INTERVAL 30 DAY
-        GROUP BY branch_name
-        ORDER BY COUNT(patient_id) DESC
-        LIMIT 5
-    """)
+        cursor.execute("""
+            SELECT branch_name, COUNT(patient_id)
+            FROM dc_patient_billing
+            WHERE billing_date >= CURDATE() - INTERVAL 30 DAY
+            GROUP BY branch_name
+            ORDER BY COUNT(patient_id) DESC
+            LIMIT 5
+        """)
 
-    result = cursor.fetchall()
-    conn.close()
+        result = cursor.fetchall()
+        conn.close()
 
-    return jsonify({
-        "top_branches": [{"branch_name": r[0], "patient_count": r[1]} for r in result]
-    })
+        data = [{"branch_name": r[0], "patient_count": r[1]} for r in result]
+
+        return jsonify({"top_branches": data})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ================= LAST DIALYSIS =================
 @app.route('/last-dialysis/<patient_id>')
@@ -368,19 +408,24 @@ def last_dialysis(patient_id):
     if not check_api_key():
         return jsonify({"error": "Unauthorized"}), 401
 
-    conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT MAX(billing_date)
-        FROM dc_patient_billing
-        WHERE patient_id = %s
-    """, (patient_id,))
+        cursor.execute("""
+            SELECT MAX(billing_date)
+            FROM dc_patient_billing
+            WHERE patient_id = %s
+        """, (patient_id,))
 
-    result = cursor.fetchone()[0]
-    conn.close()
+        result = cursor.fetchone()[0]
+        conn.close()
 
-    return jsonify({"last_dialysis": str(result)})
+        return jsonify({"last_dialysis": str(result) if result else "No Data"})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ================= RUN =================
 if __name__ == "__main__":
