@@ -757,26 +757,34 @@ def submenu_4(update, context):
 # ================= HANDLER =================
 def handle_message(update: Update, context: CallbackContext):
 
-    if update.effective_user.id not in ALLOWED_USERS:
+    user_id = update.effective_user.id
+    text = update.message.text.strip().lower()
+
+    print("User:", user_id, "| Msg:", text)
+
+    # 🔐 AUTH
+    if user_id not in ALLOWED_USERS:
         update.message.reply_text("❌ Unauthorized")
         return
 
-    text = update.message.text.strip().lower()
-    menu = context.user_data.get("menu", "main")
-
-    # BACK
+    # 🔙 BACK
     if "back" in text:
         show_main_menu(update, context)
         return
 
-    # GREETING
+    # 👋 START
     if text in ["hi", "hello", "start"]:
         show_main_menu(update, context)
         return
 
-    # ================= INPUT HANDLING =================
+    # ================= INPUT HANDLING (MOST IMPORTANT) =================
     if context.user_data.get("awaiting_branch_id"):
         branch_id = text
+
+        if not branch_id.isdigit():
+            update.message.reply_text("❌ Enter valid numeric Branch ID")
+            return
+
         action = context.user_data['awaiting_branch_id']
 
         try:
@@ -786,10 +794,13 @@ def handle_message(update: Update, context: CallbackContext):
             elif action == "billing_30":
                 res = requests.get(f"{BASE_URL}/billing-30days/{branch_id}", headers=HEADERS)
 
-            result = res.json()["billing"]
+            print("API:", res.text)
+
+            result = res.json().get("billing", 0)
             update.message.reply_text(f"💰 Billing Count: {result}")
 
-        except:
+        except Exception as e:
+            print("ERROR:", e)
             update.message.reply_text("⚠️ Error fetching data")
 
         context.user_data['awaiting_branch_id'] = None
@@ -807,7 +818,10 @@ def handle_message(update: Update, context: CallbackContext):
         show_main_menu(update, context)
         return
 
-    # ================= MAIN MENU =================
+    # ================= MENU LOGIC =================
+    menu = context.user_data.get("menu", "main")
+
+    # -------- MAIN MENU --------
     if menu == "main":
 
         if text.startswith("1"):
@@ -829,7 +843,7 @@ def handle_message(update: Update, context: CallbackContext):
         else:
             update.message.reply_text("❌ Invalid option")
 
-    # ================= MENU 1 =================
+    # -------- MENU 1 --------
     elif menu == "1":
 
         if text.startswith("1.1"):
@@ -843,7 +857,7 @@ def handle_message(update: Update, context: CallbackContext):
         else:
             update.message.reply_text("❌ Invalid option")
 
-    # ================= MENU 3 =================
+    # -------- MENU 3 --------
     elif menu == "3":
 
         if text.startswith("3.1"):
@@ -857,13 +871,14 @@ def handle_message(update: Update, context: CallbackContext):
             return
 
         data = res.json()["top_branches"]
+
         msg = "🏥 Top Branches:\n"
         for b in data:
             msg += f"- {b['branch_name']} ({b['patient_count']})\n"
 
         update.message.reply_text(msg)
 
-    # ================= MENU 4 =================
+    # -------- MENU 4 --------
     elif menu == "4":
 
         if text.startswith("4.1"):
@@ -879,13 +894,14 @@ def handle_message(update: Update, context: CallbackContext):
 
 # ================= MAIN =================
 def main():
+    print("🚀 Bot started...")
+
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", show_main_menu))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
 
-    print("🚀 Bot running...")
     updater.start_polling()
     updater.idle()
 
