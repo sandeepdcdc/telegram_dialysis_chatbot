@@ -725,8 +725,8 @@ ALLOWED_USERS = {6244556529}
 # ================= MAIN MENU =================
 def show_main_menu(update, context):
     keyboard = [
-        ["1️⃣ Total Billing", "2️⃣ Last Dialysis by patient"],
-        ["3️⃣ Top 5 Branches", "4️⃣ Last 30 Days Billing"],
+        ["1️⃣ Total Billing Count", "2️⃣ Last Dialysis (by patient id)"],
+        ["3️⃣ Top 5 Branches (by billing count)", "4️⃣ Last 30 Days Billing"],
         ["5️⃣ Support"]
     ]
     # update.message.reply_text(
@@ -741,11 +741,11 @@ def show_main_menu(update, context):
     )
 
     update.message.reply_text(
-        "📊 Choose an Option:\n\n"
-        "1️⃣ Total Billing\n"
+        "📊 Choose an option:\n\n"
+        "1️⃣ Total Billing Count\n"
         "2️⃣ Last Dialysis (by patient id)\n"
-        "3️⃣ Top 5 Branches\n"
-        "4️⃣ Last 30 Days Billing\n"
+        "3️⃣ Top 5 Branches (by billing count)\n"
+        "4️⃣ Last 30 Days Billing Count\n"
         "5️⃣ Support\n\n"
         "👉 Use buttons below or type option number",
         reply_markup=reply_markup
