@@ -720,7 +720,8 @@ API_KEY = os.getenv("API_KEY")
 
 HEADERS = {"x-api-key": API_KEY}
 
-ALLOWED_USERS = {6244556529}
+#ALLOWED_USERS = {6244556529}
+ALLOWED_USERS = {1220712438}
 
 # ================= MAIN MENU =================
 def show_main_menu(update, context):
