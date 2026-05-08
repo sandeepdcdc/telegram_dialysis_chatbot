@@ -751,20 +751,19 @@ def show_main_menu(update, context):
         reply_markup=reply_markup
     )
 
-
     context.user_data.clear()
     context.user_data['menu'] = "main"
 
 # ================= SUB MENUS =================
 def submenu_1(update, context):
     keyboard = [["1.1 Enter Branch ID", "1.2 Total Billing"], ["🔙 Back"]]
-    update.message.reply_text("Billing Count by:",
+    update.message.reply_text("Select Billing Count by:",
                               reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
     context.user_data['menu'] = "1"
 
 def submenu_3(update, context):
     keyboard = [["3.1 Last 30 Days", "3.2 Total Billing"], ["🔙 Back"]]
-    update.message.reply_text("Top 5 Branches by:",
+    update.message.reply_text("Find Top 5 Branches by:",
                               reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
     context.user_data['menu'] = "3"
 
