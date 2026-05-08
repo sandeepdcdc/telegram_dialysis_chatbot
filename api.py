@@ -353,9 +353,18 @@ def top_branches():
         conn = get_connection()
         cursor = conn.cursor()
 
+        # cursor.execute("""
+        #     SELECT branch_name, COUNT(patient_id)
+        #     FROM dc_patient_billing
+        #     GROUP BY branch_name
+        #     ORDER BY COUNT(patient_id) DESC
+        #     LIMIT 5
+        # """)
+
         cursor.execute("""
             SELECT branch_name, COUNT(patient_id)
             FROM dc_patient_billing
+            WHERE YEAR(billing_date) = YEAR(CURDATE()) - 1
             GROUP BY branch_name
             ORDER BY COUNT(patient_id) DESC
             LIMIT 5
