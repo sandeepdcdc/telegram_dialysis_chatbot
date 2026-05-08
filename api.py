@@ -331,7 +331,7 @@ def billing_30_branch(branch_id):
             SELECT COUNT(patient_id)
             FROM dc_patient_billing
             WHERE branch_id = %s
-            AND billing_date >= CURDATE() - INTERVAL 30 DAY
+            AND billing_date >= CURDATE() - INTERVAL 180 DAY
         """, (branch_id,))
 
         total = cursor.fetchone()[0] or 0
@@ -385,7 +385,7 @@ def top_branches_30():
         cursor.execute("""
             SELECT branch_name, COUNT(patient_id)
             FROM dc_patient_billing
-            WHERE billing_date >= CURDATE() - INTERVAL 30 DAY
+            WHERE billing_date >= CURDATE() - INTERVAL 180 DAY
             GROUP BY branch_name
             ORDER BY COUNT(patient_id) DESC
             LIMIT 5
