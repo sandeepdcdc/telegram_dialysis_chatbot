@@ -305,7 +305,7 @@ def billing_30():
         cursor.execute("""
             SELECT COUNT(patient_id)
             FROM dc_patient_billing
-            WHERE billing_date >= CURDATE() - INTERVAL 30 DAY
+            WHERE billing_date >= CURDATE() - INTERVAL 180 DAY
         """)
 
         total = cursor.fetchone()[0] or 0
