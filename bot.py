@@ -742,7 +742,7 @@ def show_main_menu(update, context):
 
     update.message.reply_text(
         "📊 Choose an option:\n\n"
-        "1️⃣ Total Billing Count\n"
+        "1️⃣ Billing Count\n"
         "2️⃣ Last Dialysis (by patient id)\n"
         "3️⃣ Top 5 Branches (by billing count)\n"
         "4️⃣ Last 30 Days Billing Count\n"
@@ -758,19 +758,19 @@ def show_main_menu(update, context):
 # ================= SUB MENUS =================
 def submenu_1(update, context):
     keyboard = [["1.1 Enter Branch ID", "1.2 Total Billing"], ["🔙 Back"]]
-    update.message.reply_text("Total Billing Options:",
+    update.message.reply_text("Billing Count by:",
                               reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
     context.user_data['menu'] = "1"
 
 def submenu_3(update, context):
     keyboard = [["3.1 Last 30 Days", "3.2 Total Billing"], ["🔙 Back"]]
-    update.message.reply_text("Top Branch Options:",
+    update.message.reply_text("Top 5 Branches by:",
                               reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
     context.user_data['menu'] = "3"
 
 def submenu_4(update, context):
     keyboard = [["4.1 Enter Branch ID", "4.2 Total Billing"], ["🔙 Back"]]
-    update.message.reply_text("Last 30 Days Billing Options:",
+    update.message.reply_text("Last 30 Days Billing by:",
                               reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
     context.user_data['menu'] = "4"
 
