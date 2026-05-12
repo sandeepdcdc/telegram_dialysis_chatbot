@@ -315,8 +315,7 @@ def billing_30():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
+    
 # ================= BILLING LAST 30 DAYS BY BRANCH =================
 @app.route('/billing-30days/<branch_id>')
 def billing_30_branch(branch_id):
@@ -341,7 +340,6 @@ def billing_30_branch(branch_id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 # ================= TOP BRANCHES =================
 @app.route('/top-branches')
@@ -380,7 +378,6 @@ def top_branches():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 # ================= TOP BRANCHES LAST 30 DAYS =================
 @app.route('/top-branches-30days')
 def top_branches_30():
@@ -410,7 +407,6 @@ def top_branches_30():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 # ================= LAST DIALYSIS =================
 @app.route('/last-dialysis/<patient_id>')
 def last_dialysis(patient_id):
@@ -434,7 +430,6 @@ def last_dialysis(patient_id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 # ================= RUN =================
 if __name__ == "__main__":
